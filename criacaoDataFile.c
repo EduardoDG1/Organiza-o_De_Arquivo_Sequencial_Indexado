@@ -200,7 +200,7 @@ void criarDataFiles()
     bool gravaPedido = true;
 
     fwrite(&contOrder,sizeof(int),1,orderDataFile);
-    while(fscanf(csvFile,"%s %s UTC,%lu,%lu,%s ,%f,%c,%s ,%s ,%s", order.date, order.time, &order.id, &joia.id, joia.category, &joia.price, &joia.productGender, joia.mainColor, joia.mainMetal, joia.mainGem) == 10)
+    while(fscanf(csvFile,"%s %s UTC,%lu,%lu,%s ,%lf,%c,%s ,%s ,%s", order.date, order.time, &order.id, &joia.id, joia.category, &joia.price, &joia.productGender, joia.mainColor, joia.mainMetal, joia.mainGem) == 10)
     {
         order.countItems = 0;
         joia.excluido = false;

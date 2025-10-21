@@ -15,7 +15,7 @@ typedef struct
 {
     unsigned long int id;
     char category[SIZECATEGORYANDGEM];
-    float price;
+    double price;
     char productGender;
     char mainColor[SIZECOLOR];
     char mainMetal[SIZEMETAL];

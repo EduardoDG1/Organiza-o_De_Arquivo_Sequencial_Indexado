@@ -75,11 +75,6 @@ void criarArquivoIndicePedidos(int n, FILE *f)
         f = fopen(nomeArq,"rb");
         sprintf(nomeArq,"orderLvl%d.ind",nivel);
         arqIndice = fopen(nomeArq,"wb");
-        if(ultimo)
-        {
-            fwrite(&nblocos,sizeof(int),1,arqIndice);
-            desloc += sizeof(int);
-        }
         for (i = 0; i < nblocos; i++)
         {
             if(i == nblocos-1)
@@ -187,11 +182,6 @@ void criarArquivoIndiceJoias(int n, FILE *f)
         f = fopen(nomeArq,"rb");
         sprintf(nomeArq,"jewelryLvl%d.ind",nivel);
         arqIndice = fopen(nomeArq,"wb");
-        if(ultimo)
-        {
-          fwrite(&nblocos,sizeof(int),1,arqIndice);
-          desloc += sizeof(int);  
-        }
         for (i = 0; i < nblocos; i++)
         {
             if(i == nblocos-1)

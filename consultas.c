@@ -1,25 +1,13 @@
 #include "criacaoDataFile.c"
 
-void mostrarArqIndice(FILE *f)
-{
-    INDICE ind;
-    int reg;
-    fread(&reg,sizeof(int),1,f);
-    printf("%d\n",reg);
-    while(fread(&ind,sizeof(INDICE),1,f))
-    {
-        printf("%lu - %lu - %d\n",ind.ultimoDoBloco, ind.deslocamento,ind.numeroRegistrosNoBloco);
-    }
-}
-
 void mostrarPedidos(FILE *f){
     ORDER order;
-    int cont;
+    int cont, i;
     fread(&cont,sizeof(int),1,f);
     printf("%d\n",cont);
     while(fread(&order,sizeof(ORDER),1,f))
     {
-        printf("%s %s UTC - %lu - %d\n",order.date, order.time, order.id,order.countItems);
+        printf("%s %s UTC - %lu - %d\n",order.date, order.time, order.id, order.countItems);
     }
 }
 
@@ -30,7 +18,7 @@ void mostrarJoias(FILE *f){
     printf("%d\n",qtd);
     while(fread(&joia,sizeof(JOIA),1,f))
     {
-        printf("%lu - %s - $%.2f\n",joia.id, joia.category, joia.price);
+        printf("%lu - %s - $%.2lf - %c - %s - %s - %s\n",joia.id, joia.category, joia.price, joia.productGender, joia.mainColor, joia.mainMetal, joia.mainGem);
     }
 }
 
@@ -43,7 +31,7 @@ ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod){
         exit(0);
     }
     
-    int qtdNiveis, qtd, i;
+    int qtdNiveis, qtd = 1, i;
 
     fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
 
@@ -56,11 +44,6 @@ ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod){
     {   
         sprintf(nomeArq,"orderLvl%d.ind",i);
         FILE *arqInd = fopen(nomeArq,"rb");
-        if(i == qtdNiveis)
-        {
-            fread(&qtd,sizeof(int),1,arqInd);
-            desloc = sizeof(int);
-        }
         INDICE ind; 
         inicio = 0;
         fim = qtd-1;
@@ -119,7 +102,7 @@ JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
         exit(0);
     }
     
-    int qtdNiveis, qtd, i;
+    int qtdNiveis, qtd = 1, i;
 
     fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
 
@@ -132,11 +115,6 @@ JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
     {   
         sprintf(nomeArq,"jewelryLvl%d.ind",i);
         FILE *arqInd = fopen(nomeArq,"rb");
-        if(i == qtdNiveis)
-        {
-            fread(&qtd,sizeof(int),1,arqInd);
-            desloc = sizeof(int);
-        }
         INDICE ind; 
         inicio = 0;
         fim = qtd-1;
@@ -186,12 +164,12 @@ JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
     exit(0);
 }
 
-float calculaTotalPedido(FILE *fOrder, FILE *fJewelry, unsigned long int cod)
+double calculaTotalPedido(FILE *fOrder, FILE *fJewelry, unsigned long int cod)
 {
     ORDER order = pesquisaBinariaOrder(fOrder,cod);
 
     int i;
-    float total = 0;
+    double total = 0;
 
     for (i = 0; i < order.countItems; i++)
     {
@@ -199,20 +177,23 @@ float calculaTotalPedido(FILE *fOrder, FILE *fJewelry, unsigned long int cod)
         JOIA joia = pesquisaBinariaJewelry(fJewelry,codJoia);
         total += joia.price;
     }
-
     return total;
 }
 
-float calculaTotalDosPedidos(FILE *fOrder, FILE *fJewelry)
+double calculaTotalDosPedidos(FILE *fOrder, FILE *fJewelry)
 {
     ORDER order;
-    float total = 0;
+    double total = 0;
+    int i;
     fseek(fOrder,sizeof(int),SEEK_SET);
     fseek(fJewelry,sizeof(int),SEEK_SET);
     while(fread(&order,sizeof(ORDER),1,fOrder))
     {
-        total += calculaTotalPedido(fOrder,fJewelry,order.id);
+        for (i = 0; i < order.countItems; i++)
+        {
+            JOIA joia = pesquisaBinariaJewelry(fJewelry,order.items[i]);
+            total += joia.price;
+        }
     }
-
     return total;
 }
