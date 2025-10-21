@@ -1,0 +1,1 @@
+# Organiza-o_De_Arquivo_Sequencial_Indexado
