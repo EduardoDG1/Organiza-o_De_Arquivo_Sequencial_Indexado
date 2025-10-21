@@ -14,14 +14,14 @@
 typedef struct
 {
     unsigned long int id;
-    char category[SIZECATEGORYANDGEM];
     double price;
-    char productGender;
-    char mainColor[SIZECOLOR];
+    unsigned long int elo;
     char mainMetal[SIZEMETAL];
+    char mainColor[SIZECOLOR];
+    char productGender;
+    char category[SIZECATEGORYANDGEM];
     char mainGem[SIZECATEGORYANDGEM];
     bool excluido;
-    unsigned long int elo;
 }JOIA;
 
 typedef struct

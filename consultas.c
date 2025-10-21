@@ -70,24 +70,13 @@ ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod){
     }
     
     ORDER order;
-    inicio = 0, fim = qtd-1;
-    while(inicio <= fim)
+    fseek(f,desloc,SEEK_SET);
+    for (i = 0; i < qtd; i++)
     {
-        int meio = (inicio+fim)/2;
-        fseek(f,desloc+meio*sizeof(ORDER),SEEK_SET);
         fread(&order,sizeof(ORDER),1,f);
-        if(cod < order.id)
-        {
-            fim = meio - 1;
-        }
-        else if(cod > order.id)
-        {
-            inicio = meio + 1;
-        }
-        else{
-            return order;
-        }
+        if(order.id == cod) return order;
     }
+    
     printf("Pedido nao encontrado!\n");
     exit(0);
 }
@@ -141,23 +130,11 @@ JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
     }
     
     JOIA jewelry;
-    inicio = 0, fim = qtd-1;
-    while(inicio <= fim)
+    fseek(f,desloc,SEEK_SET);
+    for (i = 0; i < qtd; i++)
     {
-        int meio = (inicio+fim)/2;
-        fseek(f,desloc+meio*sizeof(JOIA),SEEK_SET);
         fread(&jewelry,sizeof(JOIA),1,f);
-        if(cod < jewelry.id)
-        {
-            fim = meio - 1;
-        }
-        else if(cod > jewelry.id)
-        {
-            inicio = meio + 1;
-        }
-        else{
-            return jewelry;
-        }
+        if(jewelry.id == cod) return jewelry;
     }
 
     printf("Joia nao encontrada!\n");

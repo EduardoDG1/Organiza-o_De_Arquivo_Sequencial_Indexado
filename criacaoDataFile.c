@@ -204,7 +204,7 @@ void criarDataFiles()
     {
         order.countItems = 0;
         joia.excluido = false;
-        joia.elo = 0;
+        joia.elo = -1;
         bool gravaJoia = true;
         JOIA auxJoia;
         fseek(jewelryDataFile,0,SEEK_SET);
