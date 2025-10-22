@@ -11,8 +11,7 @@ void mostrarPedidos(FILE *f){
     printf("%d\n",header.numeroExclusoes);
     while(fread(&order,sizeof(ORDER),1,f))
     {
-        if(!order.excluido)
-            printf("%s %s UTC - %lu - %d\n",order.date, order.time, order.id, order.countItems);
+        printf("%s %s UTC - %lu - %d\n",order.date, order.time, order.id, order.countItems);
     }
 }
 
@@ -25,14 +24,13 @@ void mostrarJoias(FILE *f){
     printf("%d\n",header.numeroExclusoes);
     while(fread(&joia,sizeof(JOIA),1,f))
     {
-        if(!joia.excluido)
-            printf("%lu - %s - $%.2lf - %c - %s - %s - %s\n",joia.id, joia.category, joia.price, joia.productGender, joia.mainColor, joia.mainMetal, joia.mainGem);
+        printf("%lu - %s - $%.2lf - %c - %s - %s - %s\n",joia.id, joia.category, joia.price, joia.productGender, joia.mainColor, joia.mainMetal, joia.mainGem);
     }
 }
 
-unsigned long int pesquisaBinariaArqIndice(char *arqInfo, char nomeArq[30], unsigned int cod)
-{
-    FILE *infoInd = fopen(arqInfo,"r");
+ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod){
+    
+    FILE *infoInd = fopen("orderIndInfo.txt","r");
     if(!infoInd)
     {
         printf("Erro ao abrir arquivo!\n");
@@ -43,6 +41,8 @@ unsigned long int pesquisaBinariaArqIndice(char *arqInfo, char nomeArq[30], unsi
 
     fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
 
+    char nomeArq[30];
+    
     int inicio,fim;
     unsigned long int desloc = 0;
 
@@ -74,81 +74,120 @@ unsigned long int pesquisaBinariaArqIndice(char *arqInfo, char nomeArq[30], unsi
         qtd = ind.numeroRegistrosNoBloco;
         fclose(arqInd);
     }
-    return desloc;
-}
-
-ORDER pesquisaOrder(FILE *f, unsigned long int cod){
+    
     ORDER order;
-    unsigned long int desloc = pesquisaBinariaArqIndice("orderIndInfo.txt","orderLvl%d.ind",cod);
-    fseek(f,desloc,SEEK_SET);
 
-    int i;
+    fseek(f,0,SEEK_CUR);
+    HEADER header;
+    fread(&header,sizeof(HEADER),1,f);
 
-    for (i = 0; i < REGISTROSBLOCO; i++)
+    if(desloc == sizeof(HEADER))
     {
-        bool leuCerto = fread(&order,sizeof(ORDER),1,f);
-        if(!leuCerto) break;
-        desloc += sizeof(ORDER);
-        if(order.elo != -1)
+        fseek(f,header.deslocInicio,SEEK_SET);
+    }
+    else
+    {
+        fseek(f,desloc,SEEK_SET);
+    }
+    
+    for (i = 0; i < qtd; i++)
+    {
+        fread(&order,sizeof(ORDER),1,f);
+        while(order.elo != -1)
         {
-            while(order.elo != -1)
-            {
-                fseek(f,order.elo,SEEK_SET);
-                fread(&order,sizeof(ORDER),1,f);
-
-                ORDER aux;
-                fseek(f,desloc,SEEK_SET);
-                fread(&aux,sizeof(ORDER),1,f);
-                if(aux.id == order.id) break;
-
-                if(order.id == cod && !order.excluido) return order;
-            }
-            fseek(f,desloc,SEEK_SET);
+            fseek(f,order.elo,SEEK_SET);
+            fread(&order,sizeof(ORDER),1,f);
+            if(order.id == cod && !order.excluido) return order;
         }
-        if(order.id == cod && !order.excluido) return order;
+        if(order.id == cod && order.excluido) return order;
     }
     
     printf("Pedido nao encontrado!\n");
+    exit(0);
 }
 
 
 JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
-    JOIA jewelry;
     
-    unsigned long int desloc = pesquisaBinariaArqIndice("jewelryIndInfo.txt","jewelryLvl%d.ind",cod);
-    fseek(f,desloc,SEEK_SET);
-
-    int i;
-
-    for (i = 0; i < REGISTROSBLOCO; i++)
+    FILE *infoInd = fopen("jewelryIndInfo.txt","r");
+    if(!infoInd)
     {
-        bool leuCerto = fread(&jewelry,sizeof(JOIA),1,f);
-        if(!leuCerto) break;
-        if(jewelry.elo != -1)
+        printf("Erro ao abrir arquivo!\n");
+        exit(0);
+    }
+    
+    int qtdNiveis, qtd = 1, i;
+
+    fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
+
+    char nomeArq[30];
+    
+    int inicio,fim;
+    unsigned long int desloc = 0;
+
+    for (i = qtdNiveis; i > 0; i--)
+    {   
+        sprintf(nomeArq,"jewelryLvl%d.ind",i);
+        FILE *arqInd = fopen(nomeArq,"rb");
+        INDICE ind; 
+        inicio = 0;
+        fim = qtd-1;
+
+        while(inicio <= fim)
         {
-            while(jewelry.elo != -1)
+            int meio = (inicio+fim)/2;
+            fseek(arqInd,desloc+meio*sizeof(INDICE),SEEK_SET);
+            fread(&ind,sizeof(INDICE),1,arqInd);
+            if(cod <= ind.ultimoDoBloco)
             {
-                fseek(f,jewelry.elo,SEEK_SET);
-                fread(&jewelry,sizeof(JOIA),1,f);
-
-                JOIA aux;
-                fseek(f,desloc,SEEK_SET);
-                fread(&aux,sizeof(ORDER),1,f);
-                if(aux.id == jewelry.id) break;
-
-                if(jewelry.id == cod && !jewelry.excluido) return jewelry;
+                fim = meio - 1;
             }
-            fseek(f,desloc,SEEK_SET);
+            else if(cod > ind.ultimoDoBloco)
+            {
+                inicio = meio + 1;
+            }
+        }
+        fseek(arqInd,desloc+inicio*sizeof(INDICE),SEEK_SET);
+        fread(&ind,sizeof(INDICE),1,arqInd);
+        desloc = ind.deslocamento;
+        qtd = ind.numeroRegistrosNoBloco;
+        fclose(arqInd);
+    }
+    
+    JOIA jewelry;
+
+    fseek(f,0,SEEK_CUR);
+    HEADER header;
+    fread(&header,sizeof(HEADER),1,f);
+
+    if(desloc == sizeof(HEADER))
+    {
+        fseek(f,header.deslocInicio,SEEK_SET);
+    }
+    else
+    {
+        fseek(f,desloc,SEEK_SET);
+    }
+    
+    for (i = 0; i < qtd; i++)
+    {
+        fread(&jewelry,sizeof(JOIA),1,f);
+        while(jewelry.elo != -1)
+        {
+            fseek(f,jewelry.elo,SEEK_SET);
+            fread(&jewelry,sizeof(JOIA),1,f);
+            if(jewelry.id == cod && !jewelry.excluido) return jewelry;
         }
         if(jewelry.id == cod && !jewelry.excluido) return jewelry;
     }
 
     printf("Joia nao encontrada!\n");
+    exit(0);
 }
 
 double calculaTotalPedido(FILE *fOrder, FILE *fJewelry, unsigned long int cod)
 {
-    ORDER order = pesquisaOrder(fOrder,cod);
+    ORDER order = pesquisaBinariaOrder(fOrder,cod);
 
     int i;
     double total = 0;

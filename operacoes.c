@@ -4,7 +4,50 @@
 
 void insercaoOrder(FILE *f, ORDER pedidoInserido)
 {
-    unsigned long int desloc = pesquisaBinariaArqIndice("orderIndInfo.txt","orderLvl%d.ind",pedidoInserido.id);
+        FILE *infoInd = fopen("orderIndInfo.txt","r");
+    if(!infoInd)
+    {
+        printf("Erro ao abrir arquivo!\n");
+        exit(0);
+    }
+    
+    int qtdNiveis, qtd = 1, i;
+
+    fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
+
+    char nomeArq[30];
+    
+    int inicio,fim;
+    unsigned long int desloc = 0;
+
+    for (i = qtdNiveis; i > 0; i--)
+    {   
+        sprintf(nomeArq,"orderLvl%d.ind",i);
+        FILE *arqInd = fopen(nomeArq,"rb");
+        INDICE ind; 
+        inicio = 0;
+        fim = qtd-1;
+
+        while(inicio <= fim)
+        {
+            int meio = (inicio+fim)/2;
+            fseek(arqInd,desloc+meio*sizeof(INDICE),SEEK_SET);
+            fread(&ind,sizeof(INDICE),1,arqInd);
+            if(pedidoInserido.id <= ind.ultimoDoBloco)
+            {
+                fim = meio - 1;
+            }
+            else if(pedidoInserido.id > ind.ultimoDoBloco)
+            {
+                inicio = meio + 1;
+            }
+        }
+        fseek(arqInd,desloc+inicio*sizeof(INDICE),SEEK_SET);
+        fread(&ind,sizeof(INDICE),1,arqInd);
+        desloc = ind.deslocamento;
+        qtd = ind.numeroRegistrosNoBloco;
+        fclose(arqInd);
+    }
 
     fseek(f,0,SEEK_SET);
     HEADER headerArq;
@@ -95,7 +138,50 @@ void remocaoOrder(FILE *f, unsigned long int cod)
 
 void insercaoJewelry(FILE *f, JOIA joiaInserida)
 {
-    unsigned long int desloc = pesquisaBinariaArqIndice("jewelryIndInfo.txt","jewelryLvl%d.ind",joiaInserida.id);
+        FILE *infoInd = fopen("orderIndInfo.txt","r");
+    if(!infoInd)
+    {
+        printf("Erro ao abrir arquivo!\n");
+        exit(0);
+    }
+    
+    int qtdNiveis, qtd = 1, i;
+
+    fscanf(infoInd,"Quantidade de niveis: %d\n",&qtdNiveis);
+
+    char nomeArq[30];
+    
+    int inicio,fim;
+    unsigned long int desloc = 0;
+
+    for (i = qtdNiveis; i > 0; i--)
+    {   
+        sprintf(nomeArq,"orderLvl%d.ind",i);
+        FILE *arqInd = fopen(nomeArq,"rb");
+        INDICE ind; 
+        inicio = 0;
+        fim = qtd-1;
+
+        while(inicio <= fim)
+        {
+            int meio = (inicio+fim)/2;
+            fseek(arqInd,desloc+meio*sizeof(INDICE),SEEK_SET);
+            fread(&ind,sizeof(INDICE),1,arqInd);
+            if(joiaInserida.id <= ind.ultimoDoBloco)
+            {
+                fim = meio - 1;
+            }
+            else if(joiaInserida.id > ind.ultimoDoBloco)
+            {
+                inicio = meio + 1;
+            }
+        }
+        fseek(arqInd,desloc+inicio*sizeof(INDICE),SEEK_SET);
+        fread(&ind,sizeof(INDICE),1,arqInd);
+        desloc = ind.deslocamento;
+        qtd = ind.numeroRegistrosNoBloco;
+        fclose(arqInd);
+    }
 
     fseek(f,0,SEEK_SET);
     HEADER headerArq;

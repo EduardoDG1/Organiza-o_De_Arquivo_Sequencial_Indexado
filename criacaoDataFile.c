@@ -237,7 +237,7 @@ void criarDataFiles()
         if(gravaPedido)
         {
             order.excluido = false;
-            order.elo = 0;
+            order.elo = -1;
             order.items[order.countItems++] = joia.id;
             fwrite(&order,sizeof(ORDER),1,orderDataFile);
             contOrder++;
@@ -257,7 +257,7 @@ void criarDataFiles()
             else
             {
                 order.excluido = false;
-                order.elo = 0;
+                order.elo = -1;
                 order.items[order.countItems++] = joia.id;
                 fwrite(&order,sizeof(ORDER),1,orderDataFile);
                 contOrder++;
