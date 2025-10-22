@@ -2,9 +2,11 @@
 
 void mostrarPedidos(FILE *f){
     ORDER order;
-    int cont, i;
-    fread(&cont,sizeof(int),1,f);
-    printf("%d\n",cont);
+    HEADER header;
+    fread(&header,sizeof(HEADER),1,f);
+    printf("%d\n",header.numeroRegistros);
+    printf("%d\n",header.numeroInsercoes);
+    printf("%d\n",header.numeroExclusoes);
     while(fread(&order,sizeof(ORDER),1,f))
     {
         printf("%s %s UTC - %lu - %d\n",order.date, order.time, order.id, order.countItems);
@@ -13,9 +15,11 @@ void mostrarPedidos(FILE *f){
 
 void mostrarJoias(FILE *f){
     JOIA joia;
-    int qtd;
-    fread(&qtd,sizeof(int),1,f);
-    printf("%d\n",qtd);
+    HEADER header;
+    fread(&header,sizeof(HEADER),1,f);
+    printf("%d\n",header.numeroRegistros);
+    printf("%d\n",header.numeroInsercoes);
+    printf("%d\n",header.numeroExclusoes);
     while(fread(&joia,sizeof(JOIA),1,f))
     {
         printf("%lu - %s - $%.2lf - %c - %s - %s - %s\n",joia.id, joia.category, joia.price, joia.productGender, joia.mainColor, joia.mainMetal, joia.mainGem);
@@ -162,8 +166,8 @@ double calculaTotalDosPedidos(FILE *fOrder, FILE *fJewelry)
     ORDER order;
     double total = 0;
     int i;
-    fseek(fOrder,sizeof(int),SEEK_SET);
-    fseek(fJewelry,sizeof(int),SEEK_SET);
+    fseek(fOrder,sizeof(HEADER),SEEK_SET);
+    fseek(fJewelry,sizeof(HEADER),SEEK_SET);
     while(fread(&order,sizeof(ORDER),1,fOrder))
     {
         for (i = 0; i < order.countItems; i++)

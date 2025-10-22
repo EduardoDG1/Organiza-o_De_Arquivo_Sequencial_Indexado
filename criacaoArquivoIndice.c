@@ -5,13 +5,6 @@
 
 #define BLOCKSIZE 4096
 
-typedef struct
-{
-    unsigned long int ultimoDoBloco;
-    unsigned long int deslocamento;
-    int numeroRegistrosNoBloco;
-}INDICE;
-
 void criarArquivoIndicePedidos(int n, FILE *f)
 {
     int bfrDataFile = (int)floor(BLOCKSIZE/sizeof(ORDER));
@@ -26,7 +19,7 @@ void criarArquivoIndicePedidos(int n, FILE *f)
 
     INDICE ind;
 
-    unsigned int desloc = sizeof(int);
+    unsigned int desloc = sizeof(HEADER);
     ind.deslocamento = desloc;
 
     for (i = 0; i < nblocos; i++)
@@ -133,7 +126,7 @@ void criarArquivoIndiceJoias(int n, FILE *f)
 
     INDICE ind;
 
-    unsigned int desloc = sizeof(int);
+    unsigned int desloc = sizeof(HEADER);
     ind.deslocamento = desloc;
 
     for (i = 0; i < nblocos; i++)

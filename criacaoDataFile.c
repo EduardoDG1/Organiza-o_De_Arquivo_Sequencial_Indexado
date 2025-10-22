@@ -125,7 +125,11 @@ void intercalarParticoesJewelryFile(int nParticoes, int contJoias)
     }
     
     FILE *finalFile = fopen("jewelry.dat","wb");
-    fwrite(&contJoias,sizeof(int),1,finalFile);
+    HEADER headerJewelry;
+    headerJewelry.numeroRegistros = contJoias;
+    headerJewelry.numeroInsercoes = 0;
+    headerJewelry.numeroExclusoes = 0;
+    fwrite(&headerJewelry,sizeof(HEADER),1,finalFile);
 
     while(true)
     {
@@ -192,6 +196,8 @@ void criarDataFiles()
     }
 
     ORDER order;
+    HEADER headerOrder;
+
     order.countItems = 0;
     int contOrder = 0;
     JOIA joia;
@@ -199,7 +205,8 @@ void criarDataFiles()
 
     bool gravaPedido = true;
 
-    fwrite(&contOrder,sizeof(int),1,orderDataFile);
+
+    fwrite(&headerOrder,sizeof(HEADER),1,orderDataFile);
     while(fscanf(csvFile,"%s %s UTC,%lu,%lu,%s ,%lf,%c,%s ,%s ,%s", order.date, order.time, &order.id, &joia.id, joia.category, &joia.price, &joia.productGender, joia.mainColor, joia.mainMetal, joia.mainGem) == 10)
     {
         order.countItems = 0;
@@ -257,7 +264,11 @@ void criarDataFiles()
     fseek(orderDataFile,0,SEEK_SET);
     fseek(jewelryDataFile,0,SEEK_SET);
 
-    fwrite(&contOrder,sizeof(int),1,orderDataFile);
+    headerOrder.numeroRegistros = contOrder;
+    headerOrder.numeroInsercoes = 0;
+    headerOrder.numeroExclusoes = 0;
+
+    fwrite(&headerOrder,sizeof(HEADER),1,orderDataFile);
     fclose(csvFile);
 
     criarArquivoIndicePedidos(contOrder,orderDataFile);

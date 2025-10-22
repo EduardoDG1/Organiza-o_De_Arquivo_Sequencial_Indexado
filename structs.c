@@ -13,6 +13,13 @@
 
 typedef struct
 {
+    int numeroRegistros;
+    int numeroInsercoes;
+    int numeroExclusoes;
+}HEADER;
+
+typedef struct
+{
     unsigned long int id;
     double price;
     unsigned long int elo;
@@ -23,7 +30,6 @@ typedef struct
     char mainGem[SIZECATEGORYANDGEM];
     bool excluido;
 }JOIA;
-
 typedef struct
 {
     unsigned long int items[MAXITENSORDER];
@@ -34,3 +40,10 @@ typedef struct
     int countItems;
     bool excluido;
 }ORDER;
+
+typedef struct
+{
+    unsigned long int ultimoDoBloco;
+    unsigned long int deslocamento;
+    int numeroRegistrosNoBloco;
+}INDICE;
