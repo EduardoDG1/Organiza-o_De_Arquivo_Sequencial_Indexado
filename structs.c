@@ -8,14 +8,12 @@
 #define SIZETIME 9
 #define MAXITENSORDER 26
 
-#define MEMORYREGISTERS 250
-#define FILELIMIT 21
-
 typedef struct
 {
     int numeroRegistros;
     int numeroInsercoes;
     int numeroExclusoes;
+    unsigned long int deslocInicio;
 }HEADER;
 
 typedef struct

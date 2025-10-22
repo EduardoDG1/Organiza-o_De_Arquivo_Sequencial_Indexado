@@ -5,6 +5,9 @@
 
 #include "criacaoArquivoIndice.c"
 
+#define MEMORYREGISTERS 250
+#define FILELIMIT 21
+
 int gerarParticoesJewelryFile(FILE *f)
 {
     int i, nArquivo = 1;
@@ -129,6 +132,7 @@ void intercalarParticoesJewelryFile(int nParticoes, int contJoias)
     headerJewelry.numeroRegistros = contJoias;
     headerJewelry.numeroInsercoes = 0;
     headerJewelry.numeroExclusoes = 0;
+    headerJewelry.deslocInicio = sizeof(HEADER);
     fwrite(&headerJewelry,sizeof(HEADER),1,finalFile);
 
     while(true)
@@ -267,6 +271,7 @@ void criarDataFiles()
     headerOrder.numeroRegistros = contOrder;
     headerOrder.numeroInsercoes = 0;
     headerOrder.numeroExclusoes = 0;
+    headerOrder.deslocInicio = sizeof(HEADER);
 
     fwrite(&headerOrder,sizeof(HEADER),1,orderDataFile);
     fclose(csvFile);
