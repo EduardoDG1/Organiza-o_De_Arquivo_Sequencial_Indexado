@@ -132,7 +132,6 @@ void intercalarParticoesJewelryFile(int nParticoes, int contJoias)
     headerJewelry.numeroRegistros = contJoias;
     headerJewelry.numeroInsercoes = 0;
     headerJewelry.numeroExclusoes = 0;
-    headerJewelry.deslocInicio = sizeof(HEADER);
     fwrite(&headerJewelry,sizeof(HEADER),1,finalFile);
 
     while(true)
@@ -215,7 +214,6 @@ void criarDataFiles()
     {
         order.countItems = 0;
         joia.excluido = false;
-        joia.elo = -1;
         bool gravaJoia = true;
         JOIA auxJoia;
         fseek(jewelryDataFile,0,SEEK_SET);
@@ -237,7 +235,6 @@ void criarDataFiles()
         if(gravaPedido)
         {
             order.excluido = false;
-            order.elo = -1;
             order.items[order.countItems++] = joia.id;
             fwrite(&order,sizeof(ORDER),1,orderDataFile);
             contOrder++;
@@ -257,7 +254,6 @@ void criarDataFiles()
             else
             {
                 order.excluido = false;
-                order.elo = -1;
                 order.items[order.countItems++] = joia.id;
                 fwrite(&order,sizeof(ORDER),1,orderDataFile);
                 contOrder++;
@@ -271,7 +267,6 @@ void criarDataFiles()
     headerOrder.numeroRegistros = contOrder;
     headerOrder.numeroInsercoes = 0;
     headerOrder.numeroExclusoes = 0;
-    headerOrder.deslocInicio = sizeof(HEADER);
 
     fwrite(&headerOrder,sizeof(HEADER),1,orderDataFile);
     fclose(csvFile);

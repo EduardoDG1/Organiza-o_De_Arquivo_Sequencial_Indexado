@@ -13,14 +13,12 @@ typedef struct
     int numeroRegistros;
     int numeroInsercoes;
     int numeroExclusoes;
-    unsigned long int deslocInicio;
 }HEADER;
 
 typedef struct
 {
     unsigned long int id;
     double price;
-    unsigned long int elo;
     char mainMetal[SIZEMETAL];
     char mainColor[SIZECOLOR];
     char productGender;
@@ -32,7 +30,6 @@ typedef struct
 {
     unsigned long int items[MAXITENSORDER];
     unsigned long int id;
-    unsigned long int elo;
     char date[SIZEDATE];
     char time[SIZETIME];
     int countItems;
