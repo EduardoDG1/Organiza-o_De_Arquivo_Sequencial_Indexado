@@ -138,7 +138,8 @@ ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod){
         }
         else
         {
-            return order;
+            if(!order.excluido)
+                return order;
         }
     }
 
@@ -222,7 +223,8 @@ JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
         }
         else
         {
-            return joia;
+            if(!joia.excluido)
+                return joia;
         }
     }
     printf("Joia nao encontrada!\n");
