@@ -241,7 +241,7 @@ void remocaoJewelry(FILE *f, unsigned long int cod)
 
 void reorganizacaoArquivoOrder(FILE *f)
 {
-    FILE *arqAuxiliar = fopen("arqAuxiliar.dat","wb");
+    FILE *arqAuxiliar = fopen("arqAuxiliar.dat","wb+");
     if(!arqAuxiliar)
     {
         printf("Erro ao abrir arquivo!\n");
@@ -290,12 +290,11 @@ void reorganizacaoArquivoOrder(FILE *f)
 
     criarArquivoIndicePedidos(header.numeroRegistros,arqAuxiliar);
     rename("arqAuxiliar.dat","order.dat");
-    fclose(arqAuxiliar);
 }
 
 void reorganizacaoArquivoJewelry(FILE *f)
 {
-    FILE *arqAuxiliar = fopen("arqAuxiliar.dat","wb");
+    FILE *arqAuxiliar = fopen("arqAuxiliar.dat","wb+");
     if(!arqAuxiliar)
     {
         printf("Erro ao abrir arquivo!\n");
@@ -343,6 +342,4 @@ void reorganizacaoArquivoJewelry(FILE *f)
 
     criarArquivoIndiceJoias(header.numeroRegistros,arqAuxiliar);
     rename("arqAuxiliar.dat","jewelry.dat");
-    
-    fclose(arqAuxiliar);
 }

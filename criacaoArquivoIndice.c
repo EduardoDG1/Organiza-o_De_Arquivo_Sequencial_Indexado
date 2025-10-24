@@ -45,7 +45,6 @@ void criarArquivoIndicePedidos(int n, FILE *f)
             header.deslocUltimoBloco = desloc;
             fseek(f,0,SEEK_SET);
             fwrite(&header,sizeof(HEADER),1,f);
-
             fclose(f);
             nblocos = (int)ceil((float)nblocos/bfrDataFile);
             break;
