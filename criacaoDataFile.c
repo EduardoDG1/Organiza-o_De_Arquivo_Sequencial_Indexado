@@ -132,6 +132,7 @@ void intercalarParticoesJewelryFile(int nParticoes, int contJoias)
     headerJewelry.numeroRegistros = contJoias;
     headerJewelry.numeroInsercoes = 0;
     headerJewelry.numeroExclusoes = 0;
+    headerJewelry.deslocUltimoBloco = 0;
     fwrite(&headerJewelry,sizeof(HEADER),1,finalFile);
 
     while(true)
@@ -267,6 +268,7 @@ void criarDataFiles()
     headerOrder.numeroRegistros = contOrder;
     headerOrder.numeroInsercoes = 0;
     headerOrder.numeroExclusoes = 0;
+    headerOrder.deslocUltimoBloco = 0;
 
     fwrite(&headerOrder,sizeof(HEADER),1,orderDataFile);
     fclose(csvFile);

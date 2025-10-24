@@ -3,6 +3,7 @@
 void mostrarPedidos(FILE *f){
     ORDER order;
     HEADER header;
+    fseek(f,0,SEEK_SET);
     fread(&header,sizeof(HEADER),1,f);
     printf("%d\n",header.numeroRegistros);
     printf("%d\n",header.numeroInsercoes);
@@ -15,9 +16,25 @@ void mostrarPedidos(FILE *f){
     }
 }
 
+void mostrarPedidosComExcluidos(FILE *f){
+    ORDER order;
+    HEADER header;
+    fseek(f,0,SEEK_SET);
+    fread(&header,sizeof(HEADER),1,f);
+    printf("%d\n",header.numeroRegistros);
+    printf("%d\n",header.numeroInsercoes);
+    printf("%d\n",header.numeroExclusoes);
+    printf("%lu\n",header.deslocUltimoBloco);
+    while (fread(&order,sizeof(ORDER),1,f))
+    {
+        printf("%s %s UTC - %lu - %d\n",order.date, order.time, order.id, order.countItems);       
+    }
+}
+
 void mostrarJoias(FILE *f){
     JOIA joia;
     HEADER header;
+    fseek(f,0,SEEK_SET);
     fread(&header,sizeof(HEADER),1,f);
     printf("%d\n",header.numeroRegistros);
     printf("%d\n",header.numeroInsercoes);
@@ -26,7 +43,22 @@ void mostrarJoias(FILE *f){
     while(fread(&joia,sizeof(JOIA),1,f))
     {
         if(!joia.excluido)
-            printf("%lu - %s - $%.2lf - %c - %s - %s - %s\n",joia.id, joia.category, joia.price, joia.productGender, joia.mainColor, joia.mainMetal, joia.mainGem);
+            printf("%lu - %s - $%.2lf\n",joia.id, joia.category, joia.price);
+    }
+}
+
+void mostrarJoiasComExcluidos(FILE *f){
+    JOIA joia;
+    HEADER header;
+    fseek(f,0,SEEK_SET);
+    fread(&header,sizeof(HEADER),1,f);
+    printf("%d\n",header.numeroRegistros);
+    printf("%d\n",header.numeroInsercoes);
+    printf("%d\n",header.numeroExclusoes);
+    printf("%lu\n",header.deslocUltimoBloco);
+    while(fread(&joia,sizeof(JOIA),1,f))
+    {
+        printf("%lu - %s - $%.2lf\n",joia.id, joia.category, joia.price); 
     }
 }
 
@@ -79,7 +111,7 @@ ORDER pesquisaBinariaOrder(FILE *f, unsigned long int cod){
     
     ORDER order;
 
-    fseek(f,0,SEEK_CUR);
+    fseek(f,0,SEEK_SET);
     HEADER header;
     fread(&header,sizeof(HEADER),1,f);
     
@@ -161,9 +193,9 @@ JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
         fclose(arqInd);
     }
     
-    JOIA order;
+    JOIA joia;
 
-    fseek(f,0,SEEK_CUR);
+    fseek(f,0,SEEK_SET);
     HEADER header;
     fread(&header,sizeof(HEADER),1,f);
     
@@ -179,18 +211,18 @@ JOIA pesquisaBinariaJewelry(FILE *f, unsigned long int cod){
     {
         int meio = (inicio+fim)/2;
         fseek(f,desloc+meio*sizeof(JOIA),SEEK_SET);
-        fread(&order,sizeof(JOIA),1,f);
-        if(order.id > cod)
+        fread(&joia,sizeof(JOIA),1,f);
+        if(joia.id > cod)
         {
             fim = meio - 1;
         }
-        else if(order.id < cod)
+        else if(joia.id < cod)
         {
             inicio = meio + 1;
         }
         else
         {
-            return order;
+            return joia;
         }
     }
     printf("Joia nao encontrada!\n");
@@ -213,6 +245,7 @@ double calculaTotalPedido(FILE *fOrder, FILE *fJewelry, unsigned long int cod)
         }
         return total;
     }
+    printf("Pedido nao encontrado!\n");
 }
 
 double calculaTotalDosPedidos(FILE *fOrder, FILE *fJewelry)
@@ -224,10 +257,12 @@ double calculaTotalDosPedidos(FILE *fOrder, FILE *fJewelry)
     fseek(fJewelry,sizeof(HEADER),SEEK_SET);
     while(fread(&order,sizeof(ORDER),1,fOrder))
     {
-        for (i = 0; i < order.countItems; i++)
-        {
-            JOIA joia = pesquisaBinariaJewelry(fJewelry,order.items[i]);
-            total += joia.price;
+        if(!order.excluido){
+            for (i = 0; i < order.countItems; i++)
+            {
+                JOIA joia = pesquisaBinariaJewelry(fJewelry,order.items[i]);
+                total += joia.price;
+            }
         }
     }
     return total;

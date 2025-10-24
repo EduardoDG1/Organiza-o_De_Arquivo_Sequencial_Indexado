@@ -75,27 +75,49 @@ void remocaoOrder(FILE *f, unsigned long int cod)
         fclose(arqInd);
     }
 
-    fseek(f,0,SEEK_SET);
-    HEADER headerArq;
-    fread(&headerArq,sizeof(HEADER),1,f);
-
-    fseek(f,desloc,SEEK_SET);
-
     ORDER order;
 
-    for (i = 0; i < qtd; i++)
+    fseek(f,0,SEEK_SET);
+    HEADER header;
+    fread(&header,sizeof(HEADER),1,f);
+    
+    fseek(f,desloc,SEEK_SET);
+    if(desloc == header.deslocUltimoBloco)
     {
-        bool leuCerto = fread(&order,sizeof(ORDER),1,f);
-        if(!leuCerto) break;
-        if(cod == order.id)
+        qtd += header.numeroInsercoes;
+    }
+    
+    inicio = 0;
+    fim = qtd-1;
+    while(inicio <= fim)
+    {
+        int meio = (inicio+fim)/2;
+        fseek(f,desloc+meio*sizeof(ORDER),SEEK_SET);
+        fread(&order,sizeof(ORDER),1,f);
+        if(order.id > cod)
+        {
+            fim = meio - 1;
+        }
+        else if(order.id < cod)
+        {
+            inicio = meio + 1;
+        }
+        else
         {
             order.excluido = 1;
             fseek(f,-sizeof(ORDER),SEEK_CUR);
             fwrite(&order,sizeof(ORDER),1,f);
+
+            header.numeroRegistros--;
+            header.numeroExclusoes++;
+            fseek(f,0,SEEK_SET);
+            fwrite(&header,sizeof(HEADER),1,f);
+
             printf("Pedido removido com sucesso!\n");
             return;
         }
     }
+
     printf("Pedido nao encontrado!\n");
 }
 
@@ -127,7 +149,7 @@ void insercaoJewelry(FILE *f, JOIA joiaInserida)
 
 void remocaoJewelry(FILE *f, unsigned long int cod)
 {  
-        FILE *infoInd = fopen("orderIndInfo.txt","r");
+    FILE *infoInd = fopen("jewelryIndInfo.txt","r");
     if(!infoInd)
     {
         printf("Erro ao abrir arquivo!\n");
@@ -145,7 +167,7 @@ void remocaoJewelry(FILE *f, unsigned long int cod)
 
     for (i = qtdNiveis; i > 0; i--)
     {   
-        sprintf(nomeArq,"orderLvl%d.ind",i);
+        sprintf(nomeArq,"jewelryLvl%d.ind",i);
         FILE *arqInd = fopen(nomeArq,"rb");
         INDICE ind; 
         inicio = 0;
@@ -172,38 +194,49 @@ void remocaoJewelry(FILE *f, unsigned long int cod)
         fclose(arqInd);
     }
 
-    fseek(f,0,SEEK_SET);
-    HEADER headerArq;
-    fread(&headerArq,sizeof(HEADER),1,f);
-
-    fseek(f,desloc,SEEK_SET);
-
     JOIA joia;
 
-    for (i = 0; i < qtd; i++)
+    fseek(f,0,SEEK_SET);
+    HEADER header;
+    fread(&header,sizeof(HEADER),1,f);
+    
+    fseek(f,desloc,SEEK_SET);
+    if(desloc == header.deslocUltimoBloco)
     {
-        bool leuCerto = fread(&joia,sizeof(JOIA),1,f);
-        if(!leuCerto) break;
-        if(cod == joia.id)
+        qtd += header.numeroInsercoes;
+    }
+    
+    inicio = 0;
+    fim = qtd-1;
+    while(inicio <= fim)
+    {
+        int meio = (inicio+fim)/2;
+        fseek(f,desloc+meio*sizeof(JOIA),SEEK_SET);
+        fread(&joia,sizeof(JOIA),1,f);
+        if(joia.id > cod)
+        {
+            fim = meio - 1;
+        }
+        else if(joia.id < cod)
+        {
+            inicio = meio + 1;
+        }
+        else
         {
             joia.excluido = 1;
             fseek(f,-sizeof(JOIA),SEEK_CUR);
             fwrite(&joia,sizeof(JOIA),1,f);
+
+            header.numeroRegistros--;
+            header.numeroExclusoes++;
+            fseek(f,0,SEEK_SET);
+            fwrite(&header,sizeof(HEADER),1,f);
+
             printf("Joia removida com sucesso!\n");
-
-            HEADER headerArq;
-            fseek(f,0,SEEK_SET);
-            fread(&headerArq,sizeof(HEADER),1,f);
-            headerArq.numeroExclusoes++;
-            headerArq.numeroRegistros--;
-            fseek(f,0,SEEK_SET);
-            fwrite(&headerArq,sizeof(HEADER),1,f);
-
             return;
         }
     }
     printf("Joia nao encontrada!\n");
-    return;
 }
 
 void reorganizacaoArquivoOrder(FILE *f)
@@ -216,39 +249,48 @@ void reorganizacaoArquivoOrder(FILE *f)
     }
 
     HEADER header;
+    fseek(f,0,SEEK_SET);
     fread(&header,sizeof(HEADER),1,f);
     fwrite(&header,sizeof(HEADER),1,arqAuxiliar);
 
+    header.numeroRegistros = 0;
+    header.deslocUltimoBloco = 0;
+    header.numeroInsercoes = 0;
+    header.numeroExclusoes = 0;
+
     ORDER order;
-    fseek(f,sizeof(HEADER),SEEK_SET);
 
     while(fread(&order,sizeof(ORDER),1,f))
     {
         if(!order.excluido)
         {
             fwrite(&order,sizeof(ORDER),1,arqAuxiliar);
+            header.numeroRegistros++;
         }
     }
 
     fclose(f);
     remove("order.dat");
 
-    FILE *infoInd = fopen("orderIndIndo.txt","r");
+    FILE *infoInd = fopen("orderIndInfo.txt","r");
     int n, i;
-    fscanf(infoInd,"%d",&n);
+    fscanf(infoInd,"Quantidade de niveis: %d\n",&n);
 
     fclose(infoInd);
 
     char nomeArq[30];
     for (i = n; i > 0; i--)
     {
-        sscanf(nomeArq,"orderLvl%d.ind",i);
+        sprintf(nomeArq,"jewelryLvl%d.ind",i);
         remove(nomeArq);
     }
     
+    fseek(arqAuxiliar,0,SEEK_SET);
+    fwrite(&header,sizeof(HEADER),1,arqAuxiliar);
+
     criarArquivoIndicePedidos(header.numeroRegistros,arqAuxiliar);
     rename("arqAuxiliar.dat","order.dat");
-    f = arqAuxiliar;
+    fclose(arqAuxiliar);
 }
 
 void reorganizacaoArquivoJewelry(FILE *f)
@@ -261,36 +303,46 @@ void reorganizacaoArquivoJewelry(FILE *f)
     }
 
     HEADER header;
+    fseek(f,0,SEEK_SET);
     fread(&header,sizeof(HEADER),1,f);
     fwrite(&header,sizeof(HEADER),1,arqAuxiliar);
 
+    header.numeroRegistros = 0;
+    header.deslocUltimoBloco = 0;
+    header.numeroInsercoes = 0;
+    header.numeroExclusoes = 0;
+
     JOIA joia;
-    fseek(f,sizeof(HEADER),SEEK_SET);
 
     while(fread(&joia,sizeof(JOIA),1,f))
     {
         if(!joia.excluido)
         {
             fwrite(&joia,sizeof(JOIA),1,arqAuxiliar);
+            header.numeroRegistros++;
         }
     }
 
     fclose(f);
     remove("jewelry.dat");
 
-    FILE *infoInd = fopen("jewelryIndIndo.txt","r");
+    FILE *infoInd = fopen("jewelryIndInfo.txt","r");
     int n, i;
-    fscanf(infoInd,"%d",&n);
+    fscanf(infoInd,"Quantidade de niveis: %d\n",&n);
     fclose(infoInd);
 
     char nomeArq[30];
     for (i = n; i > 0; i--)
     {
-        sscanf(nomeArq,"jewelryLvl%d.ind",i);
+        sprintf(nomeArq,"jewelryLvl%d.ind",i);
         remove(nomeArq);
     }
     
+    fseek(arqAuxiliar,0,SEEK_SET);
+    fwrite(&header,sizeof(HEADER),1,arqAuxiliar);
+
     criarArquivoIndiceJoias(header.numeroRegistros,arqAuxiliar);
     rename("arqAuxiliar.dat","jewelry.dat");
-    f = arqAuxiliar;
+    
+    fclose(arqAuxiliar);
 }
