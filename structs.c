@@ -13,6 +13,7 @@ typedef struct
     int numeroRegistros;
     int numeroInsercoes;
     int numeroExclusoes;
+    unsigned long int deslocUltimoBloco;
 }HEADER;
 
 typedef struct

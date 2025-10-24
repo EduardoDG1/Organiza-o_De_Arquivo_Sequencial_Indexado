@@ -19,6 +19,10 @@ void criarArquivoIndicePedidos(int n, FILE *f)
 
     INDICE ind;
 
+    HEADER header;
+    fseek(f,0,SEEK_SET);
+    fread(&header,sizeof(HEADER),1,f);
+
     unsigned int desloc = sizeof(HEADER);
     ind.deslocamento = desloc;
 
@@ -37,6 +41,11 @@ void criarArquivoIndicePedidos(int n, FILE *f)
             ind.ultimoDoBloco = aux.id;
             fwrite(&ind,sizeof(INDICE),1,arqIndice);
             fclose(arqIndice);
+
+            header.deslocUltimoBloco = desloc;
+            fseek(f,0,SEEK_SET);
+            fwrite(&header,sizeof(HEADER),1,f);
+
             fclose(f);
             nblocos = (int)ceil((float)nblocos/bfrDataFile);
             break;
@@ -126,6 +135,11 @@ void criarArquivoIndiceJoias(int n, FILE *f)
 
     INDICE ind;
 
+    HEADER header;
+    fseek(f,0,SEEK_SET);
+    fread(&header,sizeof(HEADER),1,f);
+
+
     unsigned int desloc = sizeof(HEADER);
     ind.deslocamento = desloc;
 
@@ -144,6 +158,11 @@ void criarArquivoIndiceJoias(int n, FILE *f)
             ind.ultimoDoBloco = aux.id;
             fwrite(&ind,sizeof(INDICE),1,arqIndice);
             fclose(arqIndice);
+
+            header.deslocUltimoBloco = desloc;
+            fseek(f,0,SEEK_SET);
+            fwrite(&header,sizeof(HEADER),1,f);
+
             fclose(f);
             nblocos = (int)ceil((float)nblocos/bfrDataFile);
             break;
